@@ -10,4 +10,7 @@ class HorseService:
         return self.repository.get_all()
 
     def create(self, horse: Horse) -> Horse:
+        if self.repository.exists_by_name(horse.name):
+            raise ValueError("Horse already exists.")
+            
         return self.repository.create(horse)
