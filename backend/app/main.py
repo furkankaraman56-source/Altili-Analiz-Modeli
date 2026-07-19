@@ -1,10 +1,12 @@
 from fastapi import FastAPI
 
-app = FastAPI(title="AAM API")
+from backend.app.api.horse_router import router as horse_router
+
+app = FastAPI()
+
+app.include_router(horse_router)
 
 
 @app.get("/")
 def root():
-    return {
-        "message": "Hello AAM"
-    }
+    return {"message": "AAM API is running"}
