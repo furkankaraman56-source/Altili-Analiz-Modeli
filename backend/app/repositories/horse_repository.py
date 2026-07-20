@@ -30,8 +30,12 @@ class HorseRepository:
         """Return one horse by its ID."""
         return self.db.get(Horse, horse_id)
 
+    def get_by_name(self, name: str) -> Horse | None:
+        """Return one horse by its name."""
+        statement = select(Horse).where(Horse.name == name)
+        return self.db.scalar(statement)
+
     def exists_by_name(self, name: str) -> bool:
         """Return True if a horse with the given name exists."""
-        statement = select(Horse).where(Horse.name == name)
-        return self.db.scalar(statement) is not None
+        return self.get_by_name(name) is not None
     

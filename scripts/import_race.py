@@ -27,13 +27,23 @@ def main() -> None:
     Base.metadata.create_all(bind=engine)
     db = SessionLocal()
     try:
-        race = RaceService(RaceRepository(db)).import_from_file(args.html_file)
+        service = RaceService(RaceRepository(db))
+        race = service.import_from_file(args.html_file)
     except ValueError as exc:
         parser.error(str(exc))
     finally:
         db.close()
 
-    print(f"Imported race {race.race_number}: {race.hippodrome} on {race.date.isoformat()} (ID: {race.id})")
+    race_status = "created" if service.race_created else "already existed"
+    print(
+        f"Race {race_status}: {race.race_number} at {race.hippodrome} "
+        f"on {race.date.isoformat()} (ID: {race.id})"
+    )
+    print(
+        "Horses imported: "
+        f"{service.horse_import_summary['created']} created, "
+        f"{service.horse_import_summary['existing']} already existed."
+    )
 
 
 if __name__ == "__main__":

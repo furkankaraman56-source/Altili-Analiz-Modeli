@@ -23,16 +23,31 @@ class RaceParser:
     def parse(self, file_path: str) -> dict[str, Any]:
         """Read a local HTML file and return its race metadata.
 
-        Missing values are ``None``, so the returned dictionary always has
-        the same five keys. File reading errors propagate to the caller.
+        Missing race metadata values are ``None`` and ``horses`` is always a
+        list, so the returned dictionary has a consistent shape. File reading
+        errors propagate to the caller.
         """
         html = Path(file_path).read_text(encoding="utf-8")
         soup = BeautifulSoup(html, "html.parser")
 
-        return {
+        race = {
             field: self._extract_field(soup, field, labels)
             for field, labels in self._FIELDS.items()
         }
+        race["horses"] = self._extract_horses(soup)
+        return race
+
+    def _extract_horses(self, soup: BeautifulSoup) -> list[str]:
+        """Return horse names from elements marked with ``data-horse-name``."""
+        names: list[str] = []
+        for element in soup.find_all(attrs={"data-horse-name": True}):
+            if not isinstance(element, Tag):
+                continue
+            value = element.get("data-horse-name") or element.get_text(" ", strip=True)
+            name = self._normalise(str(value))
+            if name and name not in names:
+                names.append(name)
+        return names
 
     def _extract_field(
         self, soup: BeautifulSoup, field: str, labels: tuple[str, ...]
