@@ -11,3 +11,6 @@
 
 - [ ] __future__ annotations kullanımı değerlendirilecek.
 - [ ] Model docstring standartları gözden geçirilecek.
+
+- [ ] import_race.py içinde sys.path değiştirme ihtiyacını kaldır.
+- [ ] ValueError yerine domain-specific exception sınıfları kullan (ör. DuplicateRaceError).
