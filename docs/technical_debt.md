@@ -14,3 +14,7 @@
 
 - [ ] import_race.py içinde sys.path değiştirme ihtiyacını kaldır.
 - [ ] ValueError yerine domain-specific exception sınıfları kullan (ör. DuplicateRaceError).
+- [ ] Parser should eventually return typed values (int/float/date) instead of raw strings.
+
+- [ ]Review SQLAlchemy Session lifecycle in CLI scripts.
+- [ ]Avoid DetachedInstanceError by ensuring ORM objects are not accessed after the session is closed.

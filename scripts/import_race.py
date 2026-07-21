@@ -39,11 +39,12 @@ def main() -> None:
         f"Race {race_status}: {race.race_number} at {race.hippodrome} "
         f"on {race.date.isoformat()} (ID: {race.id})"
     )
-    print(
-        "Horses imported: "
-        f"{service.horse_import_summary['created']} created, "
-        f"{service.horse_import_summary['existing']} already existed."
-    )
+    print("Horses:")
+    print(f"  created: {service.horse_import_summary['created']}")
+    print(f"  existing: {service.horse_import_summary['existing']}")
+    print("Entries:")
+    print(f"  created: {service.entry_import_summary['created']}")
+    print(f"  existing: {service.entry_import_summary['existing']}")
 
 
 if __name__ == "__main__":

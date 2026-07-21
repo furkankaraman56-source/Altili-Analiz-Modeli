@@ -37,17 +37,31 @@ class RaceParser:
         race["horses"] = self._extract_horses(soup)
         return race
 
-    def _extract_horses(self, soup: BeautifulSoup) -> list[str]:
-        """Return horse names from elements marked with ``data-horse-name``."""
-        names: list[str] = []
+    def _extract_horses(self, soup: BeautifulSoup) -> list[dict[str, str | None]]:
+        """Return horse and entry information from marked horse elements."""
+        horses: list[dict[str, str | None]] = []
         for element in soup.find_all(attrs={"data-horse-name": True}):
             if not isinstance(element, Tag):
                 continue
             value = element.get("data-horse-name") or element.get_text(" ", strip=True)
             name = self._normalise(str(value))
-            if name and name not in names:
-                names.append(name)
-        return names
+            if not name or any(horse["name"] == name for horse in horses):
+                continue
+
+            horses.append(
+                {
+                    "name": name,
+                    "start_number": self._attribute_value(element, "data-start-number"),
+                    "jockey": self._attribute_value(element, "data-jockey"),
+                    "trainer": self._attribute_value(element, "data-trainer"),
+                    "weight": self._attribute_value(element, "data-weight"),
+                }
+            )
+        return horses
+
+    def _attribute_value(self, element: Tag, attribute: str) -> str | None:
+        value = element.get(attribute)
+        return self._normalise(str(value)) if value else None
 
     def _extract_field(
         self, soup: BeautifulSoup, field: str, labels: tuple[str, ...]
