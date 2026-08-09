@@ -20,22 +20,22 @@ Bu veritabanı;
 2. Jockey
 3. Trainer
 4. Race
-5. RaceEntry
+5. Entry (RaceEntry)
 6. Prediction
 
 ---
 
 ## İlişkiler
 
-Horse (1) ------ (N) RaceEntry
+Horse (1) ------ (N) Entry
 
-Race (1) ------- (N) RaceEntry
+Race (1) ------- (N) Entry
 
 Jockey (1) ---- (N) RaceEntry
 
 Trainer (1) --- (N) RaceEntry
 
-RaceEntry (1) -- (N) Prediction
+Entry (RaceEntry) (1) -- (N) Prediction
 
 ---
 
@@ -51,7 +51,7 @@ RaceEntry (1) -- (N) Prediction
 
 ### Historical Performance
 
-Bir atın geçmiş yarış performansı şu anda `RaceEntry` (uygulamada `Entry`) ve `Race` kayıtlarının birleşimiyle temsil edilir; ayrı bir `Performance` tablosu yoktur.
+Bir atın geçmiş yarış performansı şu anda `Entry` (RaceEntry) ile bağlı `Race` ve `Horse` kayıtlarının birleşimiyle temsil edilir; ayrı bir `Performance` tablosu yoktur.
 
 ### Workout
 

@@ -20,6 +20,10 @@ class RaceRepository:
         self.db.refresh(race)
         return race
 
+    def get_by_id(self, race_id: int) -> Race | None:
+        """Return a race by its primary key, if it exists."""
+        return self.db.get(Race, race_id)
+
     def get_by_identity(
         self, race_date: date, hippodrome: str, race_number: int
     ) -> Race | None:

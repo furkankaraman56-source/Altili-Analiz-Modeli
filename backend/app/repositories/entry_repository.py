@@ -31,6 +31,16 @@ class EntryRepository:
         )
         return self.db.scalar(statement)
 
+    def get_entries_by_race_id(self, race_id: int) -> list[Entry]:
+        """Return a race's entries with horses, ordered by start number."""
+        statement = (
+            select(Entry)
+            .where(Entry.race_id == race_id)
+            .options(joinedload(Entry.horse))
+            .order_by(Entry.start_number.asc())
+        )
+        return self.db.scalars(statement).all()
+
     def get_history_by_horse_id(self, horse_id: int) -> list[Entry]:
         """Return a horse's entries with their race details, newest first."""
         statement = (

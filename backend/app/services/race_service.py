@@ -72,6 +72,13 @@ class RaceService:
         }
         return race
 
+    def get_entries(self, race_id: int) -> list[Entry]:
+        """Return a race's entries or raise when the race does not exist."""
+        if self.repository.get_by_id(race_id) is None:
+            raise ValueError("Race not found.")
+
+        return self.entry_repository.get_entries_by_race_id(race_id)
+
     def _import_horse(self, parsed_horse: object):
         if not isinstance(parsed_horse, dict) or not parsed_horse.get("name"):
             raise ValueError("Horse name is missing.")
