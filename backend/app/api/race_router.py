@@ -6,7 +6,7 @@ from sqlalchemy.orm import Session
 from backend.app.db.database import get_db
 from backend.app.repositories.entry_repository import EntryRepository
 from backend.app.repositories.race_repository import RaceRepository
-from backend.app.schemas.race import RaceEntryResponse
+from backend.app.schemas.race import RaceEntryResponse, RaceHorseScoreResponse
 from backend.app.services.race_service import RaceService
 
 
@@ -41,4 +41,31 @@ def get_race_entries(
             pre_race_odds=entry.pre_race_odds,
         )
         for entry in entries
+    ]
+
+
+@router.get(
+    "/{race_id}/scores",
+    response_model=list[RaceHorseScoreResponse],
+)
+def get_race_scores(
+    race_id: int,
+    db: Session = Depends(get_db),
+) -> list[RaceHorseScoreResponse]:
+    service = RaceService(
+        RaceRepository(db),
+        entry_repository=EntryRepository(db),
+    )
+
+    try:
+        scores = service.get_horse_scores(race_id)
+    except ValueError as error:
+        raise HTTPException(
+            status_code=404,
+            detail=str(error),
+        ) from error
+
+    return [
+        RaceHorseScoreResponse(**score)
+        for score in scores
     ]

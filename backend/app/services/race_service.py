@@ -10,6 +10,7 @@ from backend.app.parsers.race_parser import RaceParser
 from backend.app.repositories.entry_repository import EntryRepository
 from backend.app.repositories.horse_repository import HorseRepository
 from backend.app.repositories.race_repository import RaceRepository
+from backend.app.scoring.horse_scorer import HorseScorer
 from backend.app.services.horse_service import HorseService
 
 
@@ -22,11 +23,13 @@ class RaceService:
         parser: RaceParser | None = None,
         horse_service: HorseService | None = None,
         entry_repository: EntryRepository | None = None,
+        horse_scorer: HorseScorer | None = None,
     ):
         self.repository = repository
         self.parser = parser or RaceParser()
         self.horse_service = horse_service or HorseService(HorseRepository(repository.db))
         self.entry_repository = entry_repository or EntryRepository(repository.db)
+        self.horse_scorer = horse_scorer or HorseScorer()
         self.race_created = False
         self.horse_import_summary = {"created": 0, "existing": 0}
         self.entry_import_summary = {"created": 0, "existing": 0}
@@ -78,6 +81,33 @@ class RaceService:
             raise ValueError("Race not found.")
 
         return self.entry_repository.get_entries_by_race_id(race_id)
+
+    def get_horse_scores(
+    self,
+    race_id: int,
+    ) -> list[dict[str, int | str | float]]:
+        """Calculate and rank scores for every entry in an existing race."""
+        entries = self.get_entries(race_id)
+
+        scores = [
+            {
+                "horse_id": entry.horse_id,
+                "horse_name": entry.horse.name,
+                "start_number": entry.start_number,
+                "score": self.horse_scorer.score(
+                    self.horse_service.get_stats(entry.horse_id)
+                ),
+            }
+            for entry in entries
+        ]
+
+        return sorted(
+            scores,
+            key=lambda item: (
+                -float(item["score"]),
+                int(item["start_number"]),
+            ),
+        )
 
     def _import_horse(self, parsed_horse: object):
         if not isinstance(parsed_horse, dict) or not parsed_horse.get("name"):
