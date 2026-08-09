@@ -49,9 +49,9 @@ RaceEntry (1) -- (N) Prediction
 
 ## Gelecek Sürümlerde Eklenecek Tablolar
 
-### Performance
+### Historical Performance
 
-Bir atın geçmiş yarış performanslarını içerir.
+Bir atın geçmiş yarış performansı şu anda `RaceEntry` (uygulamada `Entry`) ve `Race` kayıtlarının birleşimiyle temsil edilir; ayrı bir `Performance` tablosu yoktur.
 
 ### Workout
 

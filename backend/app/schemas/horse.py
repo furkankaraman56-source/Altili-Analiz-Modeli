@@ -1,3 +1,5 @@
+from datetime import date
+
 from pydantic import BaseModel, ConfigDict, Field
 
 
@@ -10,3 +12,18 @@ class HorseResponse(BaseModel):
     name: str
 
     model_config = ConfigDict(from_attributes=True)
+
+
+class HorsePerformanceResponse(BaseModel):
+    race_date: date
+    hippodrome: str
+    race_number: int
+    distance: int
+    surface: str
+    start_number: int
+    jockey: str
+    trainer: str
+    weight: float
+    finish_position: int | None
+    finish_time: str | None
+    pre_race_odds: float | None
