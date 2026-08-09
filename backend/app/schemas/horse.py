@@ -27,3 +27,15 @@ class HorsePerformanceResponse(BaseModel):
     finish_position: int | None
     finish_time: str | None
     pre_race_odds: float | None
+
+
+class HorseStatsResponse(BaseModel):
+    race_count: int
+    completed_count: int
+    win_count: int
+    place_count: int
+    win_rate: float
+    place_rate: float
+    average_finish_position: float
+    best_finish_position: int
+    average_pre_race_odds: float

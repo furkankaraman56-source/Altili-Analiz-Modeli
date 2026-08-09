@@ -1,6 +1,6 @@
 """Entry persistence operations."""
 
-from sqlalchemy import select
+from sqlalchemy import case, func, select
 from sqlalchemy.orm import Session, joinedload
 
 from backend.app.models.entry import Entry
@@ -51,6 +51,43 @@ class EntryRepository:
             .order_by(Race.date.desc())
         )
         return self.db.scalars(statement).all()
+
+    def get_stats_by_horse_id(self, horse_id: int) -> dict[str, int | float]:
+        """Return aggregate race statistics for one horse's entries."""
+        statement = select(
+            func.count(Entry.id).label("race_count"),
+            func.count(Entry.finish_position).label("completed_count"),
+            func.coalesce(
+                func.sum(case((Entry.finish_position == 1, 1), else_=0)),
+                0,
+            ).label("win_count"),
+            func.coalesce(
+                func.sum(
+                    case((Entry.finish_position.in_((2, 3)), 1), else_=0)
+                ),
+                0,
+            ).label("place_count"),
+            func.coalesce(func.avg(Entry.finish_position), 0.0).label(
+                "average_finish_position"
+            ),
+            func.coalesce(func.min(Entry.finish_position), 0).label(
+                "best_finish_position"
+            ),
+            func.coalesce(func.avg(Entry.pre_race_odds), 0.0).label(
+                "average_pre_race_odds"
+            ),
+        ).where(Entry.horse_id == horse_id)
+        result = self.db.execute(statement).one()
+
+        return {
+            "race_count": int(result.race_count),
+            "completed_count": int(result.completed_count),
+            "win_count": int(result.win_count),
+            "place_count": int(result.place_count),
+            "average_finish_position": float(result.average_finish_position),
+            "best_finish_position": int(result.best_finish_position),
+            "average_pre_race_odds": float(result.average_pre_race_odds),
+        }
 
     def update_result_fields(
         self,

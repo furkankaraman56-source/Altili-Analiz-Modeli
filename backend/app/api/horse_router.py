@@ -9,6 +9,7 @@ from backend.app.schemas.horse import (
     HorseCreate,
     HorsePerformanceResponse,
     HorseResponse,
+    HorseStatsResponse,
 )
 from backend.app.services.horse_service import HorseService
 
@@ -65,6 +66,28 @@ def get_horse_history(
         )
         for entry in entries
     ]
+
+
+@router.get(
+    "/{horse_id}/stats",
+    response_model=HorseStatsResponse,
+)
+def get_horse_stats(
+    horse_id: int,
+    db: Session = Depends(get_db),
+) -> HorseStatsResponse:
+    service = HorseService(
+        HorseRepository(db),
+        EntryRepository(db),
+    )
+
+    try:
+        return HorseStatsResponse(**service.get_stats(horse_id))
+    except ValueError as error:
+        raise HTTPException(
+            status_code=404,
+            detail=str(error),
+        ) from error
 
 
 @router.post("/", response_model=HorseResponse)

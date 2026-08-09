@@ -40,3 +40,23 @@ class HorseService:
             raise ValueError("Horse not found.")
 
         return self.entry_repository.get_history_by_horse_id(horse_id)
+
+    def get_stats(self, horse_id: int) -> dict[str, int | float]:
+        """Return aggregate statistics for a horse or raise when it is unknown."""
+        if self.repository.get_by_id(horse_id) is None:
+            raise ValueError("Horse not found.")
+
+        stats = self.entry_repository.get_stats_by_horse_id(horse_id)
+        completed_count = int(stats["completed_count"])
+        win_count = int(stats["win_count"])
+        place_count = int(stats["place_count"])
+
+        return {
+            **stats,
+            "win_rate": (win_count / completed_count * 100)
+            if completed_count
+            else 0.0,
+            "place_rate": (place_count / completed_count * 100)
+            if completed_count
+            else 0.0,
+        }
