@@ -55,6 +55,13 @@ class RaceParser:
                     "jockey": self._attribute_value(element, "data-jockey"),
                     "trainer": self._attribute_value(element, "data-trainer"),
                     "weight": self._attribute_value(element, "data-weight"),
+                    "finish_position": self._attribute_value(
+                        element, "data-finish-position"
+                    ),
+                    "finish_time": self._attribute_value(element, "data-finish-time"),
+                    "pre_race_odds": self._attribute_value(
+                        element, "data-pre-race-odds"
+                    ),
                 }
             )
         return horses

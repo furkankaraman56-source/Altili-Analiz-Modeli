@@ -56,7 +56,11 @@ class RaceService:
             else:
                 existing += 1
             entry = self._to_entry(race.id, horse.id, parsed_horse)
-            if self.entry_repository.exists(entry.race_id, entry.horse_id):
+            existing_entry = self.entry_repository.get_by_race_and_horse(
+                entry.race_id, entry.horse_id
+            )
+            if existing_entry is not None:
+                self.entry_repository.update_result_fields(existing_entry, entry)
                 entries_existing += 1
             else:
                 self.entry_repository.create(entry)
@@ -91,6 +95,14 @@ class RaceService:
         if start_number < 1 or weight <= 0:
             raise ValueError("Entry start number and weight must be positive.")
 
+        finish_position = RaceService._optional_int(
+            parsed_horse.get("finish_position"), "finish position"
+        )
+        pre_race_odds = RaceService._optional_float(
+            parsed_horse.get("pre_race_odds"), "pre-race odds"
+        )
+        finish_time = parsed_horse.get("finish_time")
+
         return Entry(
             race_id=race_id,
             horse_id=horse_id,
@@ -98,7 +110,28 @@ class RaceService:
             jockey=str(parsed_horse["jockey"]),
             trainer=str(parsed_horse["trainer"]),
             weight=weight,
+            finish_position=finish_position,
+            finish_time=str(finish_time) if finish_time is not None else None,
+            pre_race_odds=pre_race_odds,
         )
+
+    @staticmethod
+    def _optional_int(value: object, field_name: str) -> int | None:
+        if value is None or str(value).strip() == "":
+            return None
+        try:
+            return int(str(value))
+        except (TypeError, ValueError) as exc:
+            raise ValueError(f"Entry {field_name} is invalid.") from exc
+
+    @staticmethod
+    def _optional_float(value: object, field_name: str) -> float | None:
+        if value is None or str(value).strip() == "":
+            return None
+        try:
+            return float(str(value))
+        except (TypeError, ValueError) as exc:
+            raise ValueError(f"Entry {field_name} is invalid.") from exc
 
     @staticmethod
     def _to_race(parsed_race: dict[str, object]) -> Race:

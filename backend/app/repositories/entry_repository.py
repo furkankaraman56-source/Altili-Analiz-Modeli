@@ -20,8 +20,25 @@ class EntryRepository:
 
     def exists(self, race_id: int, horse_id: int) -> bool:
         """Return whether a horse has already been entered in a race."""
-        statement = select(Entry.id).where(
+        return self.get_by_race_and_horse(race_id, horse_id) is not None
+
+    def get_by_race_and_horse(self, race_id: int, horse_id: int) -> Entry | None:
+        """Return a horse's entry for a race, if it exists."""
+        return self.db.scalar(select(Entry).where(
             Entry.race_id == race_id,
             Entry.horse_id == horse_id,
-        )
-        return self.db.scalar(statement) is not None
+        ))
+
+    def update_result_fields(self, existing_entry: Entry, imported_entry: Entry) -> Entry:
+        """Persist result values supplied by an import without clearing existing data."""
+        changed = False
+        for field in ("finish_position", "finish_time", "pre_race_odds"):
+            value = getattr(imported_entry, field)
+            if value is not None and getattr(existing_entry, field) != value:
+                setattr(existing_entry, field, value)
+                changed = True
+
+        if changed:
+            self.db.commit()
+            self.db.refresh(existing_entry)
+        return existing_entry
